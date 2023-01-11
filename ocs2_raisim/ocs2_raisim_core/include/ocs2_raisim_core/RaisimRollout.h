@@ -81,9 +81,6 @@ class RaisimRollout final : public RolloutBase {
   //! Copy constructor
   RaisimRollout(const RaisimRollout& other);
 
-  //! Destructor
-  ~RaisimRollout() override;
-
   void resetRollout() override { raisimRolloutSettings_.setSimulatorStateOnRolloutRunOnce_ = true; }
 
   RaisimRollout* clone() const override { return new RaisimRollout(*this); }

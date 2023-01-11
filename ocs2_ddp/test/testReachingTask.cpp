@@ -84,7 +84,7 @@ class PreJumpDoubleIntegratorReachingTask : public DoubleIntegratorReachingTask,
     // optimal control problem
     ocp.dynamicsPtr = getDynamicsPtr();
     ocp.costPtr->add("cost", getCostPtr());
-    ocp.equalityConstraintPtr->add("zero_force", std::make_unique<ZeroInputConstraint>(*referenceManagerPtr));
+    ocp.equalityConstraintPtr->add("zero_force", std::unique_ptr<ZeroInputConstraint>(new ZeroInputConstraint(*referenceManagerPtr)));
     ocp.preJumpEqualityLagrangianPtr->add("goal_reaching", getGoalReachingAugmentedLagrangian(xGoal, GetParam()));
   }
 
@@ -186,8 +186,6 @@ INSTANTIATE_TEST_CASE_P(FinalDoubleIntegratorReachingTaskCase, FinalDoubleIntegr
                             return std::string("QuadraticPenalty");
                           } else if (info.param == DoubleIntegratorReachingTask::PenaltyType::SmoothAbsolutePenalty) {
                             return std::string("SmoothAbsolutePenalty");
-                          } else {
-                            throw std::runtime_error("Undefined PenaltyTyp!");
                           }
                         });
 

@@ -125,9 +125,11 @@ std::unique_ptr<LoopshapingDynamics> LoopshapingDynamics::create(const SystemDyn
 
   switch (loopshapingDefinition->getType()) {
     case LoopshapingType::outputpattern:
-      return std::make_unique<LoopshapingDynamicsOutputPattern>(systemDynamics, std::move(loopshapingDefinition), preComputation);
+      return std::unique_ptr<LoopshapingDynamics>(
+          new LoopshapingDynamicsOutputPattern(systemDynamics, std::move(loopshapingDefinition), preComputation));
     case LoopshapingType::eliminatepattern:
-      return std::make_unique<LoopshapingDynamicsEliminatePattern>(systemDynamics, std::move(loopshapingDefinition), preComputation);
+      return std::unique_ptr<LoopshapingDynamics>(
+          new LoopshapingDynamicsEliminatePattern(systemDynamics, std::move(loopshapingDefinition), preComputation));
     default:
       throw std::runtime_error("[LoopshapingDynamics::create] invalid loopshaping type");
   }

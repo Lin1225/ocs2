@@ -48,8 +48,6 @@ class SwitchedModelReferenceManager : public ReferenceManager {
 
   ~SwitchedModelReferenceManager() override = default;
 
-  void setModeSchedule(const ModeSchedule& modeSchedule) override;
-
   contact_flag_t getContactFlags(scalar_t time) const;
 
   const std::shared_ptr<GaitSchedule>& getGaitSchedule() { return gaitSchedulePtr_; }

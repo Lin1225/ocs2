@@ -55,6 +55,8 @@ TargetTrajectoriesInteractiveMarker::TargetTrajectoriesInteractiveMarker(::ros::
 
   // create an interactive marker for our server
   auto interactiveMarker = createInteractiveMarker();
+  
+  myfeedbackSubscriber_ = nodeHandle.subscribe<geometry_msgs::Pose>("myfeedback", 1, &TargetTrajectoriesInteractiveMarker::myfeedback,this);
 
   // add the interactive marker to our collection &
   // tell the server to call processFeedback() when feedback arrives for it
@@ -70,12 +72,18 @@ TargetTrajectoriesInteractiveMarker::TargetTrajectoriesInteractiveMarker(::ros::
 /******************************************************************************************************/
 visualization_msgs::InteractiveMarker TargetTrajectoriesInteractiveMarker::createInteractiveMarker() const {
   visualization_msgs::InteractiveMarker interactiveMarker;
-  interactiveMarker.header.frame_id = "world";
+  interactiveMarker.header.frame_id = "odom";
   interactiveMarker.header.stamp = ros::Time::now();
   interactiveMarker.name = "Goal";
   interactiveMarker.scale = 0.2;
   interactiveMarker.description = "Right click to send command";
-  interactiveMarker.pose.position.z = 1.0;
+  interactiveMarker.pose.position.x = 0.0;
+  interactiveMarker.pose.position.y = 0.0;
+  interactiveMarker.pose.position.z = 1.2;
+  interactiveMarker.pose.orientation.x = -0.707;
+  interactiveMarker.pose.orientation.y = -0.707;
+  interactiveMarker.pose.orientation.z = 0;
+  interactiveMarker.pose.orientation.w = 0.0;
 
   // create a grey box marker
   const auto boxMarker = []() {
@@ -149,6 +157,26 @@ void TargetTrajectoriesInteractiveMarker::processFeedback(const visualization_ms
   const Eigen::Vector3d position(feedback->pose.position.x, feedback->pose.position.y, feedback->pose.position.z);
   const Eigen::Quaterniond orientation(feedback->pose.orientation.w, feedback->pose.orientation.x, feedback->pose.orientation.y,
                                        feedback->pose.orientation.z);
+
+  // get the latest observation
+  SystemObservation observation;
+  {
+    std::lock_guard<std::mutex> lock(latestObservationMutex_);
+    observation = latestObservation_;
+  }
+
+  // get TargetTrajectories
+  const auto targetTrajectories = gaolPoseToTargetTrajectories_(position, orientation, observation);
+
+  // publish TargetTrajectories
+  targetTrajectoriesPublisherPtr_->publishTargetTrajectories(targetTrajectories);
+}
+
+void TargetTrajectoriesInteractiveMarker::myfeedback(const geometry_msgs::PoseConstPtr& feedback) {
+  // Desired state trajectory
+  const Eigen::Vector3d position(feedback->position.x, feedback->position.y, feedback->position.z);
+  const Eigen::Quaterniond orientation(feedback->orientation.w, feedback->orientation.x, feedback->orientation.y,
+                                       feedback->orientation.z);
 
   // get the latest observation
   SystemObservation observation;

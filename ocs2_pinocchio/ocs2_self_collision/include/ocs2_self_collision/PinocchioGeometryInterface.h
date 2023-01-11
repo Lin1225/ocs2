@@ -37,6 +37,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <urdf_model/model.h>
 
+#include <ros/ros.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Odometry.h>
+
 /* Forward declaration of pinocchio geometry types */
 namespace pinocchio {
 struct GeometryModel;
@@ -84,6 +88,11 @@ class PinocchioGeometryInterface final {
   pinocchio::GeometryModel& getGeometryModel() { return *geometryModelPtr_; }
   const pinocchio::GeometryModel& getGeometryModel() const { return *geometryModelPtr_; }
 
+  void ObsCB(const nav_msgs::Odometry::ConstPtr& obsMsg);
+  nav_msgs::Odometry InData;
+  ros::Subscriber sub;
+  double retData(double *dataarray);
+
  private:
   // Construction helpers
   void buildGeomFromPinocchioInterface(const PinocchioInterface& pinocchioInterface, pinocchio::GeometryModel& geomModel);
@@ -93,6 +102,7 @@ class PinocchioGeometryInterface final {
                              const std::vector<std::pair<std::string, std::string>>& collisionLinkPairs);
 
   std::shared_ptr<pinocchio::GeometryModel> geometryModelPtr_;
+  
 };
 
 }  // namespace ocs2

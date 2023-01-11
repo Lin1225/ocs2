@@ -64,7 +64,8 @@ int main(int argc, char** argv) {
   mrt.launchNodes(nodeHandle);
 
   // Visualization
-  auto dummyVisualization = std::make_shared<mobile_manipulator::MobileManipulatorDummyVisualization>(nodeHandle, interface);
+  std::shared_ptr<mobile_manipulator::MobileManipulatorDummyVisualization> dummyVisualization(
+      new mobile_manipulator::MobileManipulatorDummyVisualization(nodeHandle, interface));
 
   // Dummy MRT
   MRT_ROS_Dummy_Loop dummy(mrt, interface.mpcSettings().mrtDesiredFrequency_, interface.mpcSettings().mpcDesiredFrequency_);
@@ -78,8 +79,8 @@ int main(int argc, char** argv) {
 
   // initial command
   vector_t initTarget(7);
-  initTarget.head(3) << 1, 0, 1;
-  initTarget.tail(4) << Eigen::Quaternion<scalar_t>(1, 0, 0, 0).coeffs();
+  initTarget.head(3) << 0, 0, 1.2;
+  initTarget.tail(4) << Eigen::Quaternion<scalar_t>( 0, -0.707, -0.707, 0).coeffs();
   const vector_t zeroInput = vector_t::Zero(interface.getManipulatorModelInfo().inputDim);
   const TargetTrajectories initTargetTrajectories({initObservation.time}, {initTarget}, {zeroInput});
 

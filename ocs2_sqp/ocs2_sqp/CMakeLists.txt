@@ -50,8 +50,13 @@ include_directories(
 
 # Multiple shooting solver library
 add_library(${PROJECT_NAME}
-  src/SqpSettings.cpp
-  src/SqpSolver.cpp
+  src/ConstraintProjection.cpp
+  src/MultipleShootingInitialization.cpp
+  src/MultipleShootingSettings.cpp
+  src/MultipleShootingSolver.cpp
+  src/MultipleShootingSolverStatus.cpp
+  src/MultipleShootingTranscription.cpp
+  src/TimeDiscretization.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}
@@ -69,8 +74,9 @@ find_package(cmake_clang_tools QUIET)
 if(cmake_clang_tools_FOUND)
   message(STATUS "Run clang tooling for target " ${PROJECT_NAME})
   add_clang_tooling(
-    TARGETS ${PROJECT_NAME}
-    SOURCE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/test
+    TARGETS
+    ${PROJECT_NAME}
+    SOURCE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include
     CT_HEADER_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
     CF_WERROR
   )
@@ -95,13 +101,14 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 catkin_add_gtest(test_${PROJECT_NAME}
   test/testCircularKinematics.cpp
+  test/testDiscretization.cpp
+  test/testProjection.cpp
   test/testSwitchedProblem.cpp
+  test/testTranscription.cpp
   test/testUnconstrained.cpp
   test/testValuefunction.cpp
 )
-add_dependencies(test_${PROJECT_NAME}
-  ${catkin_EXPORTED_TARGETS}
-)
+add_dependencies(test_${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(test_${PROJECT_NAME}
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}

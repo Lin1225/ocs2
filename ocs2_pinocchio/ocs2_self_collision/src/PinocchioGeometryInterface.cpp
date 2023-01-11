@@ -45,13 +45,37 @@ namespace ocs2 {
 /******************************************************************************************************/
 /******************************************************************************************************/
 /******************************************************************************************************/
+
+void PinocchioGeometryInterface::ObsCB(const nav_msgs::Odometry::ConstPtr& obsMsg){
+  // posistion
+  InData.pose.pose.position.x = obsMsg->pose.pose.position.x;
+  InData.pose.pose.position.y = obsMsg->pose.pose.position.y;
+  InData.pose.pose.position.z = obsMsg->pose.pose.position.z;
+  // velocity
+  InData.twist.twist.linear.x = obsMsg->twist.twist.linear.x;
+  InData.twist.twist.linear.y = obsMsg->twist.twist.linear.y;
+  InData.twist.twist.linear.z = obsMsg->twist.twist.linear.z;
+  
+  std::cout << "----------- voxblox obsMsg Obs x : " << obsMsg->pose.pose.position.x << std::endl 
+            << "----------- voxblox obsMsg Obs y : " << obsMsg->pose.pose.position.y << std::endl;
+}
+
 PinocchioGeometryInterface::PinocchioGeometryInterface(const PinocchioInterface& pinocchioInterface,
                                                        const std::vector<std::pair<size_t, size_t>>& collisionObjectPairs)
     : geometryModelPtr_(new pinocchio::GeometryModel) {
   buildGeomFromPinocchioInterface(pinocchioInterface, *geometryModelPtr_);
 
   addCollisionObjectPairs(pinocchioInterface, collisionObjectPairs);
+  
 }
+
+double PinocchioGeometryInterface::retData(double *dataarray){
+  dataarray[0] = InData.pose.pose.position.x;
+  dataarray[1] = InData.pose.pose.position.y;
+  dataarray[2] = InData.pose.pose.position.z;
+  return 1;
+}
+
 
 PinocchioGeometryInterface::PinocchioGeometryInterface(const PinocchioInterface& pinocchioInterface,
                                                        const std::vector<std::pair<std::string, std::string>>& collisionLinkPairs,
@@ -61,6 +85,14 @@ PinocchioGeometryInterface::PinocchioGeometryInterface(const PinocchioInterface&
 
   addCollisionObjectPairs(pinocchioInterface, collisionObjectPairs);
   addCollisionLinkPairs(pinocchioInterface, collisionLinkPairs);
+  // int argc = 0;
+  // char **argv = NULL;
+  // ros::init(argc, argv, "externalCollision");
+  // ros::NodeHandle n_;
+  // sub = n_.subscribe("pos_vel", 1, &PinocchioGeometryInterface::ObsCB,this);
+  // InData.pose.pose.position.x = 100;
+  // InData.pose.pose.position.y = 100;
+  // InData.pose.pose.position.z = 100;
 }
 
 /******************************************************************************************************/

@@ -126,10 +126,12 @@ inline OptimalControlProblem createCircularKinematicsProblem(const std::string& 
   problem.dynamicsPtr.reset(new CircularKinematicsSystem());
 
   // cost function
-  problem.costPtr->add("cost", std::make_unique<CircularKinematicsCost>(libraryFolder));
+  std::unique_ptr<StateInputCost> cost(new CircularKinematicsCost(libraryFolder));
+  problem.costPtr->add("cost", std::move(cost));
 
   // constraint
-  problem.equalityConstraintPtr->add("constraint", std::make_unique<CircularKinematicsConstraints>());
+  std::unique_ptr<StateInputConstraint> constraint(new CircularKinematicsConstraints());
+  problem.equalityConstraintPtr->add("constraint", std::move(constraint));
 
   return problem;
 }

@@ -5,7 +5,6 @@ project(hpipm_catkin)
 find_package(catkin REQUIRED COMPONENTS
   blasfeo_catkin
   ocs2_core
-  ocs2_oc
   ocs2_qp_solver
 )
 
@@ -80,6 +79,7 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/HpipmInterface.cpp
   src/HpipmInterfaceSettings.cpp
+  src/OcpSize.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${catkin_EXPORTED_TARGETS}

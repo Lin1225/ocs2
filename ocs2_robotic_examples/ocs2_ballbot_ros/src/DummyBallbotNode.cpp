@@ -65,7 +65,8 @@ int main(int argc, char** argv) {
   mrt.launchNodes(nodeHandle);
 
   // Visualization
-  auto ballbotDummyVisualization = std::make_shared<ocs2::ballbot::BallbotDummyVisualization>(nodeHandle);
+  std::shared_ptr<ocs2::ballbot::BallbotDummyVisualization> ballbotDummyVisualization(
+      new ocs2::ballbot::BallbotDummyVisualization(nodeHandle));
 
   // Dummy ballbot
   ocs2::MRT_ROS_Dummy_Loop dummyBallbot(mrt, ballbotInterface.mpcSettings().mrtDesiredFrequency_,

@@ -36,6 +36,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ocs2_core/cost/QuadraticStateInputCost.h>
 #include <ocs2_core/initialization/DefaultInitializer.h>
 #include <ocs2_core/misc/LoadData.h>
+#include <ocs2_core/soft_constraint/StateInputSoftBoxConstraint.h>
+#include <ocs2_core/soft_constraint/StateSoftConstraint.h>
+#include <ocs2_core/penalties/Penalties.h>
 
 // Boost
 #include <boost/filesystem/operations.hpp>
@@ -67,8 +70,7 @@ BallbotInterface::BallbotInterface(const std::string& taskFile, const std::strin
   // DDP SQP MPC settings
   ddpSettings_ = ddp::loadSettings(taskFile, "ddp");
   mpcSettings_ = mpc::loadSettings(taskFile, "mpc");
-  sqpSettings_ = sqp::loadSettings(taskFile, "sqp");
-  slpSettings_ = slp::loadSettings(taskFile, "slp");
+  sqpSettings_ = multiple_shooting::loadSettings(taskFile, "multiple_shooting");
 
   /*
    * ReferenceManager & SolverSynchronizedModule
@@ -89,8 +91,14 @@ BallbotInterface::BallbotInterface(const std::string& taskFile, const std::strin
   std::cerr << "R:  \n" << R << "\n";
   std::cerr << "Q_final:\n" << Qf << "\n";
 
-  problem_.costPtr->add("cost", std::make_unique<QuadraticStateInputCost>(Q, R));
-  problem_.finalCostPtr->add("finalCost", std::make_unique<QuadraticStateCost>(Qf));
+  problem_.costPtr->add("cost", std::unique_ptr<StateInputCost>(new QuadraticStateInputCost(Q, R)));
+  problem_.finalCostPtr->add("finalCost", std::unique_ptr<StateCost>(new QuadraticStateCost(Qf)));
+  
+  std::unique_ptr<StateConstraint> constraint;
+  std::unique_ptr<ocs2::PenaltyBase> penalty(new RelaxedBarrierPenalty({0.01, 0.001}));
+  // constraint = std::unique_ptr<StateConstraint>(new MobileManipulatorSelfCollisionConstraint(
+  //       MobileManipulatorPinocchioMapping(manipulatorModelInfo_), std::move(geometryInterface), minimumDistance));
+  // problem_.stateSoftConstraintPtr->add("distancecollision", std::unique_ptr<StateCost>(new StateSoftConstraint(std::move(constraint), std::move(penalty))));
 
   // Dynamics
   bool recompileLibraries;  // load the flag to generate library files from taskFile

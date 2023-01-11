@@ -58,11 +58,34 @@ Strategy fromString(const std::string& name);
 /**
  * Shifts the Hessian based on the strategy defined by Line_Search::hessianCorrectionStrategy_.
  *
+ * @tparam Derived type.
  * @param [in] strategy: Hessian matrix correction strategy.
- * @param [in, out] matrix: The Hessian matrix.
+ * @param matrix: The Hessian matrix.
  * @param [in] minEigenvalue: The minimum expected eigenvalue after correction.
  */
-void shiftHessian(Strategy strategy, matrix_t& matrix, scalar_t minEigenvalue = numeric_traits::limitEpsilon<scalar_t>());
+template <typename Derived>
+void shiftHessian(Strategy strategy, Eigen::MatrixBase<Derived>& matrix,
+                  scalar_t minEigenvalue = numeric_traits::limitEpsilon<scalar_t>()) {
+  assert(matrix.rows() == matrix.cols());
+  switch (strategy) {
+    case Strategy::DIAGONAL_SHIFT: {
+      matrix.diagonal().array() += minEigenvalue;
+      break;
+    }
+    case Strategy::CHOLESKY_MODIFICATION: {
+      LinearAlgebra::makePsdCholesky(matrix, minEigenvalue);
+      break;
+    }
+    case Strategy::EIGENVALUE_MODIFICATION: {
+      LinearAlgebra::makePsdEigenvalue(matrix, minEigenvalue);
+      break;
+    }
+    case Strategy::GERSHGORIN_MODIFICATION: {
+      LinearAlgebra::makePsdGershgorin(matrix, minEigenvalue);
+      break;
+    }
+  }
+}
 
 }  // namespace hessian_correction
 }  // namespace ocs2

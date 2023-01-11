@@ -71,6 +71,10 @@ vector_t TimeTriggeredRollout::run(scalar_t initTime, const vector_t& initState,
   postEventIndices.clear();
   postEventIndices.reserve(numEvents);
 
+    // std::cout<<"IIIIIIIIIIII am HereHereHereHereHereHere" << std::endl;
+    // std::cout<<"size of stateTrajectory is " << stateTrajectory[0].size() << std::endl;
+    // std::cout<<"item of stateTrajectory is " << stateTrajectory[0] << std::endl;
+
   // set controller
   systemDynamicsPtr_->setController(controller);
 
@@ -85,14 +89,20 @@ vector_t TimeTriggeredRollout::run(scalar_t initTime, const vector_t& initState,
   for (int i = 0; i < numSubsystems; i++) {
     if (timeIntervalArray[i].first < timeIntervalArray[i].second) {
       Observer observer(&stateTrajectory, &timeTrajectory);  // concatenate trajectory
+      // std::cout<<"size of stateTrajectory is " << stateTrajectory[0].size() << std::endl;
+      // std::cout<<"item of stateTrajectory is " << stateTrajectory[0] << std::endl;
       // integrate controlled system
       dynamicsIntegratorPtr_->integrateAdaptive(*systemDynamicsPtr_, observer, beginState, timeIntervalArray[i].first,
                                                 timeIntervalArray[i].second, this->settings().timeStep, this->settings().absTolODE,
                                                 this->settings().relTolODE, maxNumSteps);
+      // std::cout<<"size of stateTrajectory is " << stateTrajectory[0].size() << std::endl;
+      // std::cout<<"item of stateTrajectory is " << stateTrajectory[0] << std::endl;
     } else {
       timeTrajectory.push_back(timeIntervalArray[i].second);
       stateTrajectory.push_back(beginState);
     }
+    
+    
 
     // compute control input trajectory and concatenate to inputTrajectory
     if (this->settings().reconstructInputTrajectory) {
@@ -111,7 +121,7 @@ vector_t TimeTriggeredRollout::run(scalar_t initTime, const vector_t& initState,
 
   // check for the numerical stability
   this->checkNumericalStability(*controller, timeTrajectory, postEventIndices, stateTrajectory, inputTrajectory);
-
+  
   return stateTrajectory.back();
 }
 

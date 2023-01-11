@@ -42,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ocs2_oc/oc_data/PrimalSolution.h"
 #include "ocs2_oc/oc_data/ProblemMetrics.h"
 #include "ocs2_oc/oc_problem/OptimalControlProblem.h"
+#include "ocs2_oc/synchronized_module/AugmentedLagrangianObserver.h"
 #include "ocs2_oc/synchronized_module/ReferenceManagerInterface.h"
-#include "ocs2_oc/synchronized_module/SolverObserver.h"
 #include "ocs2_oc/synchronized_module/SolverSynchronizedModule.h"
 
 namespace ocs2 {
@@ -134,10 +134,12 @@ class SolverBase {
   }
 
   /**
-   * Adds an observer to probe the dual solution or optimized metrics.
-   * @note: Observers will slow down the MPC. Only employ them during debugging and remove them for deployment.
+   * Adds one observer to the vector of modules that observe solver's dual solution and optimized metrics.
+   * @note: These observer can slow down the MPC. Only employ them during debugging and remove them for deployment.
    */
-  void addSolverObserver(std::unique_ptr<SolverObserver> observerModule) { solverObservers_.push_back(std::move(observerModule)); }
+  void addAugmentedLagrangianObserver(std::unique_ptr<AugmentedLagrangianObserver> observerModule) {
+    augmentedLagrangianObservers_.push_back(std::move(observerModule));
+  }
 
   /**
    * @brief Returns a const reference to the definition of optimal control problem.
@@ -195,7 +197,7 @@ class SolverBase {
    *
    * @return: The dual problem's solution.
    */
-  virtual const DualSolution* getDualSolution() const { return nullptr; }
+  virtual const DualSolution& getDualSolution() const = 0;
 
   /**
    * @brief Returns the optimized value of the Metrics.
@@ -269,7 +271,7 @@ class SolverBase {
   mutable std::mutex outputDisplayGuardMutex_;
   std::shared_ptr<ReferenceManagerInterface> referenceManagerPtr_;  // this pointer cannot be nullptr
   std::vector<std::shared_ptr<SolverSynchronizedModule>> synchronizedModules_;
-  std::vector<std::unique_ptr<SolverObserver>> solverObservers_;
+  std::vector<std::unique_ptr<AugmentedLagrangianObserver>> augmentedLagrangianObservers_;
 };
 
 }  // namespace ocs2

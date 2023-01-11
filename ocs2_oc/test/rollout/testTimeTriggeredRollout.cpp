@@ -72,13 +72,15 @@ TEST(time_rollout_test, time_rollout_test) {
   }();
 
   // rollout class
-  auto rolloutPtr = std::make_unique<TimeTriggeredRollout>(systemDynamics, rolloutSettings);
+  std::unique_ptr<RolloutBase> rolloutBasePtr(new TimeTriggeredRollout(systemDynamics, rolloutSettings));
 
   scalar_array_t timeTrajectory;
-  size_array_t postEventIndices;
+  size_array_t eventsPastTheEndIndeces;
   vector_array_t stateTrajectory;
   vector_array_t inputTrajectory;
-  rolloutPtr->run(initTime, initState, finalTime, &controller, modeSchedule, timeTrajectory, postEventIndices, stateTrajectory, inputTrajectory);
+
+  rolloutBasePtr->run(initTime, initState, finalTime, &controller, modeSchedule, timeTrajectory, eventsPastTheEndIndeces, stateTrajectory,
+                      inputTrajectory);
 
   // check sizes
   const auto totalSize = timeTrajectory.size();

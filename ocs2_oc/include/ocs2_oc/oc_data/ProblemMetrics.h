@@ -35,9 +35,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace ocs2 {
 
 struct ProblemMetrics {
-  Metrics final;
-  std::vector<Metrics> preJumps;
-  std::vector<Metrics> intermediates;
+  MetricsCollection final;
+  std::vector<MetricsCollection> preJumps;
+  std::vector<MetricsCollection> intermediates;
 
   /** Exchanges the content of ProblemMetrics */
   void swap(ProblemMetrics& other) {

@@ -49,7 +49,7 @@ scalar_t rolloutCost(cost_wraper_t costWraper, const scalar_array_t& timeTraject
     costTrajectory.push_back(costWraper(timeTrajectory[i], stateTrajectory[i], inputTrajectory[i]));
   }
 
-  return trapezoidalIntegration(timeTrajectory, costTrajectory, 0.0);
+  return trapezoidalIntegration(timeTrajectory, costTrajectory);
 }
 
 /******************************************************************************************************/
@@ -68,7 +68,7 @@ scalar_t rolloutConstraint(constraints_wraper_t constraintWraper, const scalar_a
     constraintTrajectoryISE.push_back(constraint.squaredNorm());
   }
 
-  return trapezoidalIntegration(timeTrajectory, constraintTrajectoryISE, 0.0);
+  return trapezoidalIntegration(timeTrajectory, constraintTrajectoryISE);
 }
 
 }  // namespace PerformanceIndicesRollout

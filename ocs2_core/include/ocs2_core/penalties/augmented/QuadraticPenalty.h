@@ -72,7 +72,9 @@ class QuadraticPenalty final : public AugmentedPenaltyBase {
   explicit QuadraticPenalty(Config config) : config_(std::move(config)) {}
 
   /** Factory function */
-  static std::unique_ptr<QuadraticPenalty> create(Config config) { return std::make_unique<QuadraticPenalty>(std::move(config)); }
+  static std::unique_ptr<QuadraticPenalty> create(Config config) {
+    return std::unique_ptr<QuadraticPenalty>(new QuadraticPenalty(std::move(config)));
+  }
 
   ~QuadraticPenalty() override = default;
   QuadraticPenalty* clone() const override { return new QuadraticPenalty(*this); }

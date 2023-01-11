@@ -68,6 +68,7 @@ class TargetTrajectoriesInteractiveMarker final {
  private:
   visualization_msgs::InteractiveMarker createInteractiveMarker() const;
   void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback);
+  void myfeedback(const geometry_msgs::PoseConstPtr& feedback);
 
   interactive_markers::MenuHandler menuHandler_;
   interactive_markers::InteractiveMarkerServer server_;
@@ -77,6 +78,7 @@ class TargetTrajectoriesInteractiveMarker final {
   std::unique_ptr<TargetTrajectoriesRosPublisher> targetTrajectoriesPublisherPtr_;
 
   ::ros::Subscriber observationSubscriber_;
+  ::ros::Subscriber myfeedbackSubscriber_;
   mutable std::mutex latestObservationMutex_;
   SystemObservation latestObservation_;
 };

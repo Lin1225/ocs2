@@ -117,19 +117,19 @@ void MPC_MRT_Interface::advanceMpc() {
 /******************************************************************************************************/
 void MPC_MRT_Interface::copyToBuffer(const SystemObservation& mpcInitObservation) {
   // policy
-  auto primalSolutionPtr = std::make_unique<PrimalSolution>();
+  std::unique_ptr<PrimalSolution> primalSolutionPtr(new PrimalSolution);
   const scalar_t startTime = mpcInitObservation.time;
   const scalar_t finalTime =
       (mpc_.settings().solutionTimeWindow_ < 0) ? mpc_.getSolverPtr()->getFinalTime() : startTime + mpc_.settings().solutionTimeWindow_;
   mpc_.getSolverPtr()->getPrimalSolution(finalTime, primalSolutionPtr.get());
 
   // command
-  auto commandPtr = std::make_unique<CommandData>();
+  std::unique_ptr<CommandData> commandPtr(new CommandData);
   commandPtr->mpcInitObservation_ = mpcInitObservation;
   commandPtr->mpcTargetTrajectories_ = mpc_.getSolverPtr()->getReferenceManager().getTargetTrajectories();
 
   // performance indices
-  auto performanceIndicesPtr = std::make_unique<PerformanceIndex>();
+  std::unique_ptr<PerformanceIndex> performanceIndicesPtr(new PerformanceIndex);
   *performanceIndicesPtr = mpc_.getSolverPtr()->getPerformanceIndeces();
 
   this->moveToBuffer(std::move(commandPtr), std::move(primalSolutionPtr), std::move(performanceIndicesPtr));

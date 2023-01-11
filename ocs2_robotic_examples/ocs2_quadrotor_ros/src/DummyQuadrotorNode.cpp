@@ -64,7 +64,8 @@ int main(int argc, char** argv) {
   mrt.launchNodes(nodeHandle);
 
   // Visualization
-  auto quadrotorDummyVisualization = std::make_shared<ocs2::quadrotor::QuadrotorDummyVisualization>();
+  std::shared_ptr<ocs2::quadrotor::QuadrotorDummyVisualization> quadrotorDummyVisualization(
+      new ocs2::quadrotor::QuadrotorDummyVisualization());
 
   // Dummy loop
   ocs2::MRT_ROS_Dummy_Loop dummyQuadrotor(mrt, quadrotorInterface.mpcSettings().mrtDesiredFrequency_,

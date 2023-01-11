@@ -29,8 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
-#include <functional>
-
 #include <ocs2_core/model_data/Metrics.h>
 #include <ocs2_core/model_data/Multiplier.h>
 
@@ -95,108 +93,81 @@ void updateDualSolution(const OptimalControlProblem& ocp, const PrimalSolution& 
 
 /**
  * Updates in-place final MultiplierCollection for equality and inequality Lagrangians.
- * Moreover it also updates the penalties of Metrics based on the update of multipliers.
+ * Moreover it also updates the penalties of MetricsCollection based on the update of multipliers.
  *
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] time : Final time.
  * @param [in] state : Final state.
- * @param [in, out] metrics: The final Metrics. Its penalties will be updated based on the update of multiplierCollection.
- * @param [out] multipliers : The updated final MultiplierCollection.
+ * @param [in, out] metricsCollection: The final MetricsCollection. Its penalties will be updated based on
+ *                                     the update of multiplierCollection.
+ * @param [out] multiplierCollection : The updated final MultiplierCollection.
  */
-void updateFinalMultiplierCollection(const OptimalControlProblem& ocp, scalar_t time, const vector_t& state, Metrics& metrics,
-                                     MultiplierCollection& multipliers);
+void updateFinalMultiplierCollection(const OptimalControlProblem& ocp, scalar_t time, const vector_t& state,
+                                     MetricsCollection& metricsCollection, MultiplierCollection& multiplierCollection);
 
 /**
  * Updates in-place pre-jump MultiplierCollection for equality and inequality Lagrangians.
- * Moreover it also updates the penalties of Metrics based on the update of multipliers.
+ * Moreover it also updates the penalties of MetricsCollection based on the update of multipliers.
  *
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] time : Pre-jump time.
  * @param [in] state : Pre-jump state.
- * @param [in, out] metrics: The pre-jump Metrics. Its penalties will be updated based on the update of multiplierCollection.
- * @param [out] multipliers : The updated pre-jump MultiplierCollection.
+ * @param [in, out] metricsCollection: The pre-jump MetricsCollection. Its penalties will be updated based on
+ *                                     the update of multiplierCollection.
+ * @param [out] multiplierCollection : The updated pre-jump MultiplierCollection.
  */
-void updatePreJumpMultiplierCollection(const OptimalControlProblem& ocp, scalar_t time, const vector_t& state, Metrics& metrics,
-                                       MultiplierCollection& multipliers);
+void updatePreJumpMultiplierCollection(const OptimalControlProblem& ocp, scalar_t time, const vector_t& state,
+                                       MetricsCollection& metricsCollection, MultiplierCollection& multiplierCollection);
 
 /**
  * Updates in-place intermediate MultiplierCollection for equality and inequality Lagrangians.
- * Moreover it also updates the penalties of Metrics based on the update of multipliers.
+ * Moreover it also updates the penalties of MetricsCollection based on the update of multipliers.
  *
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] time : Intermediate time.
  * @param [in] state : Intermediate state.
  * @param [in] input : Intermediate input.
- * @param [in, out] metrics: The intermediate Metrics. Its penalties will be updated based on the update of multiplierCollection.
- * @param [out] multipliers : The updated Intermediate MultiplierCollection.
+ * @param [in, out] metricsCollection: The intermediate MetricsCollection. Its penalties will be updated based on
+ *                                     the update of multiplierCollection.
+ * @param [out] multiplierCollection : The updated Intermediate MultiplierCollection.
  */
 void updateIntermediateMultiplierCollection(const OptimalControlProblem& ocp, scalar_t time, const vector_t& state, const vector_t& input,
-                                            Metrics& metrics, MultiplierCollection& multipliers);
+                                            MetricsCollection& metricsCollection, MultiplierCollection& multiplierCollection);
 
 /**
- * Extracts a requested final constraint term vector from the input Metrics.
+ * Extracts a requested final Term LagrangianMetrics from the input MetricsCollection.
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] name : The name of the term.
- * @param [in] metrics : Metrics.
- * @return A const pointer to the constraint term value.
+ * @param [in] metricsColl : MetricsCollection.
+ * @param [out] metrics : A const pointer to the term LagrangianMetrics.
+ * @return True if the term found in the final collection.
  */
-const vector_t* extractFinalTermConstraint(const OptimalControlProblem& ocp, const std::string& name, const Metrics& metrics);
+const LagrangianMetrics* extractFinalTermMetrics(const OptimalControlProblem& ocp, const std::string& name,
+                                                 const MetricsCollection& metricsColl);
 
 /**
- * Extracts a requested final term LagrangianMetrics from the input Metrics.
+ * Extracts a requested pre-jump Term LagrangianMetrics array from the input MetricsCollection array.
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] name : The name of the term.
- * @param [in] metrics : Metrics.
- * @return A const pointer to the term LagrangianMetrics.
- */
-const LagrangianMetrics* extractFinalTermLagrangianMetrics(const OptimalControlProblem& ocp, const std::string& name,
-                                                           const Metrics& metrics);
-
-/**
- * Extracts an array of the requested pre-jump constraint term from the input Metrics array.
- * @param [in] ocp : A const reference to the optimal control problem.
- * @param [in] name : The name of the term.
- * @param [in] metricsArray : Metrics array.
- * @param [out] constraintArray : Array of const references to constraint term values.
+ * @param [in] metricsCollArray : MetricsCollection array.
+ * @param [out] metricsArray : Array of const references to term LagrangianMetrics.
  * @return True if the term found in the pre-jump collection.
  */
-bool extractPreJumpTermConstraint(const OptimalControlProblem& ocp, const std::string& name, const std::vector<Metrics>& metricsArray,
-                                  std::vector<std::reference_wrapper<const vector_t>>& constraintArray);
+bool extractPreJumpTermMetrics(const OptimalControlProblem& ocp, const std::string& name,
+                               const std::vector<MetricsCollection>& metricsCollArray,
+                               std::vector<LagrangianMetricsConstRef>& metricsArray);
 
 /**
- * Extracts a requested pre-jump term LagrangianMetrics array from the input Metrics array.
+ * Extracts a requested intermediate Term LagrangianMetrics trajectory from the input MetricsCollection trajectory.
  * @param [in] ocp : A const reference to the optimal control problem.
  * @param [in] name : The name of the term.
- * @param [in] metricsArray : Metrics array.
- * @param [out] lagrangianMetricsArray : Array of const references to term LagrangianMetrics.
- * @return True if the term found in the pre-jump collection.
- */
-bool extractPreJumpTermLagrangianMetrics(const OptimalControlProblem& ocp, const std::string& name,
-                                         const std::vector<Metrics>& metricsArray,
-                                         std::vector<LagrangianMetricsConstRef>& lagrangianMetricsArray);
-
-/**
- * Extracts a trajectory of the requested intermediate constraint term from the input Metrics trajectory.
- * @param [in] ocp : A const reference to the optimal control problem.
- * @param [in] name : The name of the term.
- * @param [in] metricsTraj : Metrics trajectory.
- * @param [out] constraintTraj : Trajectory of const references to constraint term values.
+ * @param [in] metricsCollTraj : MetricsCollection trajectory.
+ * @param [out] metricsTrajectory : Trajectory of const references to term LagrangianMetrics.
  * @return True if the term found in the intermediate collection.
  */
-bool extractIntermediateTermConstraint(const OptimalControlProblem& ocp, const std::string& name, const std::vector<Metrics>& metricsTraj,
-                                       std::vector<std::reference_wrapper<const vector_t>>& constraintTraj);
-
-/**
- * Extracts a requested intermediate term LagrangianMetrics trajectory from the input Metrics trajectory.
- * @param [in] ocp : A const reference to the optimal control problem.
- * @param [in] name : The name of the term.
- * @param [in] metricsTraj : Metrics trajectory.
- * @param [out] lagrangianMetricsTraj : Trajectory of const references to term LagrangianMetrics.
- * @return True if the term found in the intermediate collection.
- */
-bool extractIntermediateTermLagrangianMetrics(const OptimalControlProblem& ocp, const std::string& name,
-                                              const std::vector<Metrics>& metricsTraj,
-                                              std::vector<LagrangianMetricsConstRef>& lagrangianMetricsTraj);
+bool extractIntermediateTermMetrics(const OptimalControlProblem& ocp, const std::string& name,
+                                    const std::vector<MetricsCollection>& metricsCollTraj,
+                                    std::vector<LagrangianMetricsConstRef>& metricsTrajectory);
 
 /**
  * Extracts a requested final Term Multiplier from the input MultiplierCollection.

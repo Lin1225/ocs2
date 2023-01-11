@@ -65,8 +65,10 @@ link_directories(
 add_library(${PROJECT_NAME}
   src/PinocchioGeometryInterface.cpp
   src/SelfCollision.cpp
+  src/externalCollision.cpp
   src/SelfCollisionCppAd.cpp
   src/SelfCollisionConstraint.cpp
+  src/externalCollisionConstraint.cpp
   src/SelfCollisionConstraintCppAd.cpp
 )
 add_dependencies(${PROJECT_NAME}

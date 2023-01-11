@@ -38,10 +38,9 @@ namespace ocs2 {
 /******************************************************************************************************/
 /******************************************************************************************************/
 /******************************************************************************************************/
-vector_array_t LoopshapingStateInputConstraint::getValue(scalar_t t, const vector_t& x, const vector_t& u,
-                                                         const PreComputation& preComp) const {
+vector_t LoopshapingStateInputConstraint::getValue(scalar_t t, const vector_t& x, const vector_t& u, const PreComputation& preComp) const {
   if (this->empty()) {
-    return vector_array_t();
+    return vector_t::Zero(0);
   }
 
   const LoopshapingPreComputation& preCompLS = cast<LoopshapingPreComputation>(preComp);

@@ -28,37 +28,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 // approximate model
-#include <ocs2_oc/approximate_model/ChangeOfInputVariables.h>
 #include <ocs2_oc/approximate_model/LinearQuadraticApproximator.h>
-
-// multiple_shooting
-#include <ocs2_oc/multiple_shooting/Helpers.h>
-#include <ocs2_oc/multiple_shooting/Initialization.h>
-#include <ocs2_oc/multiple_shooting/LagrangianEvaluation.h>
-#include <ocs2_oc/multiple_shooting/MetricsComputation.h>
-#include <ocs2_oc/multiple_shooting/PerformanceIndexComputation.h>
-#include <ocs2_oc/multiple_shooting/ProjectionMultiplierCoefficients.h>
-#include <ocs2_oc/multiple_shooting/Transcription.h>
 
 // oc_data
 #include <ocs2_oc/oc_data/DualSolution.h>
 #include <ocs2_oc/oc_data/LoopshapingPrimalSolution.h>
 #include <ocs2_oc/oc_data/PerformanceIndex.h>
 #include <ocs2_oc/oc_data/PrimalSolution.h>
-#include <ocs2_oc/oc_data/TimeDiscretization.h>
 
 // oc_problem
 #include <ocs2_oc/oc_problem/LoopshapingOptimalControlProblem.h>
-#include <ocs2_oc/oc_problem/OcpSize.h>
-#include <ocs2_oc/oc_problem/OcpToKkt.h>
 #include <ocs2_oc/oc_problem/OptimalControlProblem.h>
 #include <ocs2_oc/oc_problem/OptimalControlProblemHelperFunction.h>
 
 // oc_solver
 #include <ocs2_oc/oc_solver/SolverBase.h>
-
-// precondition
-#include <ocs2_oc/precondition/Ruzi.h>
 
 // synchronized_module
 #include <ocs2_oc/synchronized_module/LoopshapingReferenceManager.h>
@@ -66,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ocs2_oc/synchronized_module/ReferenceManager.h>
 #include <ocs2_oc/synchronized_module/ReferenceManagerDecorator.h>
 #include <ocs2_oc/synchronized_module/ReferenceManagerInterface.h>
-#include <ocs2_oc/synchronized_module/SolverObserver.h>
 #include <ocs2_oc/synchronized_module/SolverSynchronizedModule.h>
 
 // rollout
@@ -76,12 +59,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ocs2_oc/rollout/StateTriggeredRollout.h>
 #include <ocs2_oc/rollout/TimeTriggeredRollout.h>
 
-// search_strategy
-#include <ocs2_oc/search_strategy/FilterLinesearch.h>
-
 // trajectory_adjustment
 #include <ocs2_oc/trajectory_adjustment/TrajectorySpreading.h>
-#include <ocs2_oc/trajectory_adjustment/TrajectorySpreadingHelperFunctions.h>
 
 // dummy target for clang toolchain
 int main() {

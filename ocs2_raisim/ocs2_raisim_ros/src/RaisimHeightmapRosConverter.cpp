@@ -83,7 +83,8 @@ std::unique_ptr<raisim::HeightMap> RaisimHeightmapRosConverter::convertGridmapTo
 
   std::vector<double> height(gridMap->data[0].data.rbegin(), gridMap->data[0].data.rend());
 
-  return std::make_unique<raisim::HeightMap>(xSamples, ySamples, xSize, ySize, centerX, centerY, height);
+  std::unique_ptr<raisim::HeightMap> heightMap(new raisim::HeightMap(xSamples, ySamples, xSize, ySize, centerX, centerY, height));
+  return heightMap;
 }
 
 void RaisimHeightmapRosConverter::publishGridmap(const raisim::HeightMap& heightMap, const std::string& frameId) {

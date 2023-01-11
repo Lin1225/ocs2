@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ocs2_mobile_manipulator/MobileManipulatorPreComputation.h"
 #include "ocs2_mobile_manipulator/constraint/EndEffectorConstraint.h"
 #include "ocs2_mobile_manipulator/constraint/MobileManipulatorSelfCollisionConstraint.h"
+#include "ocs2_mobile_manipulator/constraint/MobileManipulatorexternalCollisionConstraint.h"
+
 #include "ocs2_mobile_manipulator/cost/QuadraticInputCost.h"
 #include "ocs2_mobile_manipulator/dynamics/DefaultManipulatorDynamics.h"
 #include "ocs2_mobile_manipulator/dynamics/FloatingArmManipulatorDynamics.h"
@@ -179,6 +181,13 @@ MobileManipulatorInterface::MobileManipulatorInterface(const std::string& taskFi
                                                     libraryFolder, recompileLibraries));
   }
 
+  // external-collision avoidance constraint
+  if (1) {
+    problem_.stateSoftConstraintPtr->add(
+        "externalCollision", getexteranlCollisionConstraint(*pinocchioInterfacePtr_, taskFile, urdfFile, "selfCollision", usePreComputation,
+                                                     libraryFolder, recompileLibraries));
+  }
+
   // Dynamics
   switch (manipulatorModelInfo_.manipulatorModelType) {
     case ManipulatorModelType::DefaultManipulator: {
@@ -245,7 +254,7 @@ std::unique_ptr<StateInputCost> MobileManipulatorInterface::getQuadraticInputCos
   std::cerr << "inputCost.R:  \n" << R << '\n';
   std::cerr << " #### =============================================================================\n";
 
-  return std::make_unique<QuadraticInputCost>(std::move(R), manipulatorModelInfo_.stateDim);
+  return std::unique_ptr<StateInputCost>(new QuadraticInputCost(std::move(R), manipulatorModelInfo_.stateDim));
 }
 
 /******************************************************************************************************/
@@ -285,10 +294,10 @@ std::unique_ptr<StateCost> MobileManipulatorInterface::getEndEffectorConstraint(
   }
 
   std::vector<std::unique_ptr<PenaltyBase>> penaltyArray(6);
-  std::generate_n(penaltyArray.begin(), 3, [&] { return std::make_unique<QuadraticPenalty>(muPosition); });
-  std::generate_n(penaltyArray.begin() + 3, 3, [&] { return std::make_unique<QuadraticPenalty>(muOrientation); });
+  std::generate_n(penaltyArray.begin(), 3, [&] { return std::unique_ptr<PenaltyBase>(new QuadraticPenalty(muPosition)); });
+  std::generate_n(penaltyArray.begin() + 3, 3, [&] { return std::unique_ptr<PenaltyBase>(new QuadraticPenalty(muOrientation)); });
 
-  return std::make_unique<StateSoftConstraint>(std::move(constraint), std::move(penaltyArray));
+  return std::unique_ptr<StateCost>(new StateSoftConstraint(std::move(constraint), std::move(penaltyArray)));
 }
 
 /******************************************************************************************************/
@@ -323,18 +332,65 @@ std::unique_ptr<StateCost> MobileManipulatorInterface::getSelfCollisionConstrain
 
   std::unique_ptr<StateConstraint> constraint;
   if (usePreComputation) {
-    constraint = std::make_unique<MobileManipulatorSelfCollisionConstraint>(MobileManipulatorPinocchioMapping(manipulatorModelInfo_),
-                                                                            std::move(geometryInterface), minimumDistance);
+    constraint = std::unique_ptr<StateConstraint>(new MobileManipulatorSelfCollisionConstraint(
+        MobileManipulatorPinocchioMapping(manipulatorModelInfo_), std::move(geometryInterface), minimumDistance));
   } else {
-    constraint = std::make_unique<SelfCollisionConstraintCppAd>(
+    constraint = std::unique_ptr<StateConstraint>(new SelfCollisionConstraintCppAd(
         pinocchioInterface, MobileManipulatorPinocchioMapping(manipulatorModelInfo_), std::move(geometryInterface), minimumDistance,
-        "self_collision", libraryFolder, recompileLibraries, false);
+        "self_collision", libraryFolder, recompileLibraries, false));
   }
 
-  auto penalty = std::make_unique<RelaxedBarrierPenalty>(RelaxedBarrierPenalty::Config{mu, delta});
+  std::unique_ptr<PenaltyBase> penalty(new RelaxedBarrierPenalty({mu, delta}));
 
-  return std::make_unique<StateSoftConstraint>(std::move(constraint), std::move(penalty));
+  return std::unique_ptr<StateCost>(new StateSoftConstraint(std::move(constraint), std::move(penalty)));
 }
+
+/******************************************************************************************************/
+/******************************************************************************************************/
+/******************************************************************************************************/
+std::unique_ptr<StateCost> MobileManipulatorInterface::getexteranlCollisionConstraint(const PinocchioInterface& pinocchioInterface,
+                                                                                  const std::string& taskFile, const std::string& urdfFile,
+                                                                                  const std::string& prefix, bool usePreComputation,
+                                                                                  const std::string& libraryFolder,
+                                                                                  bool recompileLibraries) {
+  std::vector<std::pair<size_t, size_t>> collisionObjectPairs;
+  std::vector<std::pair<std::string, std::string>> collisionLinkPairs;
+  scalar_t mu = 1e-2;
+  scalar_t delta = 1e-3;
+  scalar_t minimumDistance = 0.0;
+
+  boost::property_tree::ptree pt;
+  boost::property_tree::read_info(taskFile, pt);
+  std::cerr << "\n #### SelfCollision Settings: ";
+  std::cerr << "\n #### =============================================================================\n";
+  loadData::loadPtreeValue(pt, mu, prefix + ".mu", true);
+  loadData::loadPtreeValue(pt, delta, prefix + ".delta", true);
+  loadData::loadPtreeValue(pt, minimumDistance, prefix + ".minimumDistance", true);
+  loadData::loadStdVectorOfPair(taskFile, prefix + ".collisionObjectPairs", collisionObjectPairs, true);
+  loadData::loadStdVectorOfPair(taskFile, prefix + ".collisionLinkPairs", collisionLinkPairs, true);
+  std::cerr << " #### =============================================================================\n";
+
+  PinocchioGeometryInterface geometryInterface(pinocchioInterface, collisionLinkPairs, collisionObjectPairs);
+
+  const size_t numCollisionPairs = geometryInterface.getNumCollisionPairs();
+  std::cerr << "SelfCollision: Testing for " << numCollisionPairs << " collision pairs\n";
+
+  std::unique_ptr<StateConstraint> constraint;
+  if (usePreComputation) {
+    constraint = std::unique_ptr<StateConstraint>(new MobileManipulatorexternalCollisionConstraint(
+        MobileManipulatorPinocchioMapping(manipulatorModelInfo_), std::move(geometryInterface), minimumDistance));
+  } else {
+    // constraint = std::unique_ptr<StateConstraint>(new SelfCollisionConstraintCppAd(
+    //     pinocchioInterface, MobileManipulatorPinocchioMapping(manipulatorModelInfo_), std::move(geometryInterface), minimumDistance,
+    //     "self_collision", libraryFolder, recompileLibraries, false));
+    printf("That's an error\n");
+  }
+
+  std::unique_ptr<PenaltyBase> penalty(new RelaxedBarrierPenalty({mu, delta}));
+
+  return std::unique_ptr<StateCost>(new StateSoftConstraint(std::move(constraint), std::move(penalty)));
+}
+
 
 /******************************************************************************************************/
 /******************************************************************************************************/
@@ -431,7 +487,7 @@ std::unique_ptr<StateInputCost> MobileManipulatorInterface::getJointLimitSoftCon
     }
   }
 
-  auto boxConstraints = std::make_unique<StateInputSoftBoxConstraint>(stateLimits, inputLimits);
+  auto boxConstraints = std::unique_ptr<StateInputSoftBoxConstraint>(new StateInputSoftBoxConstraint(stateLimits, inputLimits));
   boxConstraints->initializeOffset(0.0, vector_t::Zero(manipulatorModelInfo_.stateDim), vector_t::Zero(manipulatorModelInfo_.inputDim));
   return boxConstraints;
 }
