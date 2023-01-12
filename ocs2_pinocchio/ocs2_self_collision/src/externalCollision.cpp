@@ -101,6 +101,10 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   const vector3_t joint1Position = data.oMi[joint1].translation();
   const vector3_t joint2Position = data.oMi[joint2].translation();
   // double obsData[3] = {InData.pose.pose.position.x, InData.pose.pose.position.y, InData.pose.pose.position.z};
+  std::cout << joint1Position << std::endl<< std::endl;
+
+  // joint1Position is base_link
+  // joint2Position is link_5
   
   boost::interprocess::shared_memory_object shdmem(boost::interprocess::open_only, "OBSshm", boost::interprocess::read_only);
 
@@ -112,10 +116,7 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   
 
   double obsData[3] = {outObsData->pose.pose.position.x,outObsData->pose.pose.position.y,outObsData->pose.pose.position.z};
-  ROS_INFO_STREAM_THROTTLE(1.0, std::endl
-                          << "  InData Obs x : " << obsData[0]
-                          << ", outObsData->twist.twist.linear.x:"  << outObsData->twist.twist.linear.x
-                          << std::endl);
+  
   
   std::vector<vector3_t> datavector;
   datavector.push_back(joint1Position);
@@ -123,7 +124,9 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   std::vector<double> distanceArray;
   for (int i = 1; i < 2; i++)
   {
-    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)+std::pow(datavector[i](1)-(obsData[1]+outObsData->twist.twist.linear.y),2)+std::pow(datavector[i](2)-(obsData[2]+outObsData->twist.twist.linear.z),2));
+    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)
+                               +std::pow(datavector[i](1)-(obsData[1]+outObsData->twist.twist.linear.y),2)
+                               +std::pow(datavector[i](2)-(obsData[2]+outObsData->twist.twist.linear.z),2));
     distanceArray.push_back(distance);  
   }
   // std::vector<double> distanceArray;
@@ -210,8 +213,8 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
 
     // Jacobian calculation
     const auto& collisionPair = geometryModel.collisionPairs[i];
-    const auto& joint1 = geometryModel.geometryObjects[collisionPair.first].parentJoint;
-    const auto& joint2 = geometryModel.geometryObjects[collisionPair.second].parentJoint;
+    const auto& joint1 = geometryModel.geometryObjects[collisionPair.second].parentJoint;
+    const auto& joint2 = geometryModel.geometryObjects[collisionPair.first].parentJoint;
 
     // We need to get the jacobian of the point on the first object; use the joint jacobian translated to the point
     const vector3_t joint1Position = data.oMi[joint1].translation();
