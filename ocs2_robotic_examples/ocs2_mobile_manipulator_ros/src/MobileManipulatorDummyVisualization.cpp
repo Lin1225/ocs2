@@ -130,7 +130,7 @@ void MobileManipulatorDummyVisualization::launchVisualizerNode(ros::NodeHandle& 
     loadData::loadStdVectorOfPair(taskFile, "selfCollision.collisionObjectPairs", collisionObjectPairs, true);
     PinocchioGeometryInterface geomInterface(pinocchioInterface, collisionObjectPairs);
     // set geometry visualization markers
-    geometryVisualization_.reset(new GeometryInterfaceVisualization(std::move(pinocchioInterface), geomInterface, nodeHandle));
+    geometryVisualization_.reset(new GeometryInterfaceVisualization(std::move(pinocchioInterface), geomInterface, nodeHandle,"odom"));
   }
 }
 

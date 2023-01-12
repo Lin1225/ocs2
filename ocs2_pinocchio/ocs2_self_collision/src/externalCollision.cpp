@@ -101,10 +101,10 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   const vector3_t joint1Position = data.oMi[joint1].translation();
   const vector3_t joint2Position = data.oMi[joint2].translation();
   // double obsData[3] = {InData.pose.pose.position.x, InData.pose.pose.position.y, InData.pose.pose.position.z};
-  std::cout << joint1Position << std::endl<< std::endl;
+  // std::cout << joint2Position << std::endl<< std::endl;
 
   // joint1Position is base_link
-  // joint2Position is link_5
+  // joint2Position is link_4
   
   boost::interprocess::shared_memory_object shdmem(boost::interprocess::open_only, "OBSshm", boost::interprocess::read_only);
 
@@ -137,7 +137,7 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   // std::cout << "distanceArray.size() is : " << distanceArray.size() << std::endl;
   vector_t violations = vector_t::Zero(distanceArray.size());
   for (size_t i = 0; i < distanceArray.size(); ++i) {
-    violations[i] = distanceArray.at(i) - 0.35;
+    violations[i] = distanceArray.at(i) - 0.4;
     // std::cout << "distanceArray[i].min_distance is : " << distanceArray[i].min_distance << std::endl;
   }
 
@@ -209,7 +209,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
   for (size_t i = 0; i < distanceArray.size(); ++i) {
     // Distance violation
     // f[i] = distanceArray[i].min_distance - minimumDistance_;
-    f[i] = distanceArray[i] - 0.35;
+    f[i] = distanceArray[i] - 0.4;
 
     // Jacobian calculation
     const auto& collisionPair = geometryModel.collisionPairs[i];
