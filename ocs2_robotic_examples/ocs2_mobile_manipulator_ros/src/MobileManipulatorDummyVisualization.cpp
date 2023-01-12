@@ -207,7 +207,7 @@ void MobileManipulatorDummyVisualization::publishCommand(const ros::Time& timeSt
   }
   armState.header.stamp = timeStamp;
   armState.joint_names = {"shoulder_1_joint", "shoulder_2_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
-  StatePoint.time_from_start = {0,500000000};
+  StatePoint.time_from_start = {0,10000000};
   armState.points.push_back(StatePoint);
 
   armgazeboPublisher_.publish(armState);

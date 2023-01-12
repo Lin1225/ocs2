@@ -73,7 +73,7 @@ class MobileManipulatorDummyVisualization final : public DummyObserver {
   ros::Publisher armgazeboPublisher_;
 
   std::unique_ptr<GeometryInterfaceVisualization> geometryVisualization_;
-  bool useReal=false;
+  bool useReal=true;
 };
 
 }  // namespace mobile_manipulator
