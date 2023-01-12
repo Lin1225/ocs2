@@ -73,8 +73,8 @@ rollout
 ; MPC settings
 mpc
 {
-  timeHorizon                     1.0   ; [s]
-  solutionTimeWindow              0.4   ; [s]
+  timeHorizon                     1.5   ; [s]
+  solutionTimeWindow              0.3   ; [s]
   coldStart                       false
   
   debugPrint                      false

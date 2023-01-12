@@ -182,6 +182,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
 
   
   // double obsData[3] = {0.5, 0,0};
+  // std::cout << outObsData->twist.twist.linear.x <<std::endl<<std::endl;
 
   std::vector<double> distanceArray;
   for (int i = 1; i < 2; i++)
