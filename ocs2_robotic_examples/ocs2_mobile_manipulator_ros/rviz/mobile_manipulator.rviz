@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -153,6 +153,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        VLP16_base_link:
+          Value: true
         base:
           Value: true
         base_link:
@@ -191,6 +193,10 @@ Visualization Manager:
           Value: true
         tool0:
           Value: true
+        velodyne:
+          Value: true
+        velodyne_base_link:
+          Value: true
       Marker Alpha: 1
       Marker Scale: 0.5
       Name: TF
@@ -201,6 +207,10 @@ Visualization Manager:
         odom:
           base_link:
             link_chassis:
+              VLP16_base_link:
+                velodyne_base_link:
+                  velodyne:
+                    {}
               caster_back:
                 {}
               caster_front:
@@ -282,7 +292,7 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        points_and_lines: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -298,7 +308,7 @@ Visualization Manager:
       Marker Topic: /detected_obstacle2
       Name: MarkerArray
       Namespaces:
-        {}
+        my_namespace: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -365,7 +375,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.110740661621094
+      Distance: 4.66401481628418
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -373,17 +383,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.942341923713684
-        Y: -0.8756706118583679
-        Z: 0.17779061198234558
+        X: 1.2826839685440063
+        Y: -0.9209031462669373
+        Z: 0.24451178312301636
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8666465878486633
+      Pitch: 0.5866468548774719
       Target Frame: <Fixed Frame>
-      Yaw: 1.5621345043182373
+      Yaw: 1.5721344947814941
     Saved: ~
 Window Geometry:
   Displays:
