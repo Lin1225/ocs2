@@ -148,10 +148,15 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
 
   // std::cout << "distanceArray.size() is : " << distanceArray.size() << std::endl;
   vector_t violations = vector_t::Zero(distanceArray.size());
-  for (size_t i = 0; i < distanceArray.size(); ++i) {
-    violations[i] = distanceArray.at(i) - 0.4;
-    // std::cout << "distanceArray[i].min_distance is : " << distanceArray[i].min_distance << std::endl;
-  }
+  // for (size_t i = 0; i < distanceArray.size(); ++i) {
+  //   violations[i] = distanceArray.at(i) - 0.4;
+  //   // std::cout << "distanceArray[i].min_distance is : " << distanceArray[i].min_distance << std::endl;
+  // }
+
+  // base_link
+  violations[0] = distanceArray.at(0) - 0.7;
+  // link_4
+  violations[1] = distanceArray.at(1) - 0.4;
 
   return violations;
 }
@@ -284,7 +289,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
 
     // base_link
     ++i;
-    f[i] = distanceArray[i] - 0.4;
+    f[i] = distanceArray[i] - 0.7;
 
     const vector3_t joint2Position = data.oMi[joint2].translation(); //arm tool0
     matrix_t joint2Jacobian = matrix_t::Zero(6, model.nv);
