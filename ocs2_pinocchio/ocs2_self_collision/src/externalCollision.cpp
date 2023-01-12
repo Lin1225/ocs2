@@ -62,6 +62,9 @@ externalCollision::externalCollision(PinocchioGeometryInterface pinocchioGeometr
       ObsData->pose.pose.position.x = 1.0;
       ObsData->pose.pose.position.y = 0;
       ObsData->pose.pose.position.z = 1.2;
+      ObsData->twist.twist.linear.x=0;
+      ObsData->twist.twist.linear.y=0;
+      ObsData->twist.twist.linear.z=0;
     }
 
 
@@ -109,10 +112,10 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   
 
   double obsData[3] = {outObsData->pose.pose.position.x,outObsData->pose.pose.position.y,outObsData->pose.pose.position.z};
-  // ROS_INFO_STREAM_THROTTLE(1.0, std::endl
-  //                         << "  InData Obs x : " << obsData[0]
-  //                         << ", InData Obs y :"  << obsData[1]
-  //                         << std::endl);
+  ROS_INFO_STREAM_THROTTLE(1.0, std::endl
+                          << "  InData Obs x : " << obsData[0]
+                          << ", outObsData->twist.twist.linear.x:"  << outObsData->twist.twist.linear.x
+                          << std::endl);
   
   std::vector<vector3_t> datavector;
   datavector.push_back(joint1Position);
