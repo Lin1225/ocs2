@@ -56,6 +56,7 @@ class MobileManipulatorDummyVisualization final : public DummyObserver {
   void launchVisualizerNode(ros::NodeHandle& nodeHandle);
 
   void publishObservation(const ros::Time& timeStamp, const SystemObservation& observation);
+  void publishCommand(const ros::Time& timeStamp,const SystemObservation& observation, const CommandData& command);
   void publishTargetTrajectories(const ros::Time& timeStamp, const TargetTrajectories& targetTrajectories);
   void publishOptimizedTrajectory(const ros::Time& timeStamp, const PrimalSolution& policy);
 
@@ -68,8 +69,11 @@ class MobileManipulatorDummyVisualization final : public DummyObserver {
 
   ros::Publisher stateOptimizedPublisher_;
   ros::Publisher stateOptimizedPosePublisher_;
+  ros::Publisher carVelocityPublisher_;
+  ros::Publisher armgazeboPublisher_;
 
   std::unique_ptr<GeometryInterfaceVisualization> geometryVisualization_;
+  bool useReal=false;
 };
 
 }  // namespace mobile_manipulator

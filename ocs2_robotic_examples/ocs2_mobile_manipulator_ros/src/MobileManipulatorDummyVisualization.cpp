@@ -38,6 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <kdl_parser/kdl_parser.hpp>
 
 #include <geometry_msgs/PoseArray.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <geometry_msgs/Twist.h>
 #include <visualization_msgs/MarkerArray.h>
 
 #include <ocs2_core/misc/LoadData.h>
@@ -91,6 +93,20 @@ void MobileManipulatorDummyVisualization::launchVisualizerNode(ros::NodeHandle& 
   robotStatePublisherPtr_.reset(new robot_state_publisher::RobotStatePublisher(tree));
   robotStatePublisherPtr_->publishFixedTransforms(true);
 
+  if(useReal){
+    carVelocityPublisher_ = nodeHandle.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+    ROS_INFO("Waiting for car velocity subscriber ...");
+    while (ros::ok() && carVelocityPublisher_.getNumSubscribers() == 0) {
+      ros::Rate(100).sleep();
+    }
+    armgazeboPublisher_ = nodeHandle.advertise<trajectory_msgs::JointTrajectory>("/arm_controller/command", 10);
+    ROS_INFO("Waiting for joint states gazebo subscriber ...");
+    while (ros::ok() && armgazeboPublisher_.getNumSubscribers() == 0) {
+      ros::Rate(100).sleep();
+    }
+  }
+  
+
   stateOptimizedPublisher_ = nodeHandle.advertise<visualization_msgs::MarkerArray>("/mobile_manipulator/optimizedStateTrajectory", 1);
   stateOptimizedPosePublisher_ = nodeHandle.advertise<geometry_msgs::PoseArray>("/mobile_manipulator/optimizedPoseTrajectory", 1);
   // Get ROS parameter
@@ -125,7 +141,13 @@ void MobileManipulatorDummyVisualization::update(const SystemObservation& observ
                                                  const CommandData& command) {
   const ros::Time timeStamp = ros::Time::now();
 
-  publishObservation(timeStamp, observation);
+  if(!useReal)
+    publishObservation(timeStamp, observation);
+  else{
+    publishCommand(timeStamp, observation, command);
+    }
+
+  // publishObservation(timeStamp, observation);
   publishTargetTrajectories(timeStamp, command.mpcTargetTrajectories_);
   publishOptimizedTrajectory(timeStamp, policy);
   if (geometryVisualization_ != nullptr) {
@@ -159,6 +181,36 @@ void MobileManipulatorDummyVisualization::publishObservation(const ros::Time& ti
     jointPositions[name] = 0.0;
   }
   robotStatePublisherPtr_->publishTransforms(jointPositions, timeStamp);
+}
+
+/******************************************************************************************************/
+/******************************************************************************************************/
+/******************************************************************************************************/
+void MobileManipulatorDummyVisualization::publishCommand(const ros::Time& timeStamp, const SystemObservation& observation, const CommandData& command) {
+  // publish world -> base transform
+  double pubVLinear = command.mpcInitObservation_.input(0);
+  double pubAngular = command.mpcInitObservation_.input(1);
+
+  geometry_msgs::Twist message_send;
+  message_send.linear.x = pubVLinear;
+  message_send.angular.z = pubAngular;
+  carVelocityPublisher_.publish(message_send);
+
+  // publish joints transforms
+  trajectory_msgs::JointTrajectory armState;
+  trajectory_msgs::JointTrajectoryPoint StatePoint;
+  StatePoint.positions.resize(modelInfo_.dofNames.size());
+
+  const auto j_arm = getArmJointAngles(observation.state, modelInfo_);
+  for (size_t i = 0; i < modelInfo_.dofNames.size(); i++) {
+    StatePoint.positions[i] = j_arm(i);
+  }
+  armState.header.stamp = timeStamp;
+  armState.joint_names = {"shoulder_1_joint", "shoulder_2_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
+  StatePoint.time_from_start = {0,500000000};
+  armState.points.push_back(StatePoint);
+
+  armgazeboPublisher_.publish(armState);
 }
 
 /******************************************************************************************************/
