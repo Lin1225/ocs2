@@ -154,7 +154,7 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   // }
 
   // base_link
-  violations[0] = distanceArray.at(0) - 0.7;
+  violations[0] = distanceArray.at(0) - 0.6;
   // link_4
   violations[1] = distanceArray.at(1) - 0.4;
 
@@ -237,6 +237,9 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
   vector_t f(distanceArray.size());
   matrix_t dfdq(distanceArray.size(), model.nq);
   for (size_t i = 0; i < distanceArray.size(); ++i) {
+
+    // link_4
+
     // Distance violation
     // f[i] = distanceArray[i].min_distance - minimumDistance_;
     f[i] = distanceArray[i] - 0.4;
@@ -246,7 +249,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
     const auto& joint1 = geometryModel.geometryObjects[collisionPair.second].parentJoint; // link_4
     const auto& joint2 = geometryModel.geometryObjects[collisionPair.first].parentJoint;  // base_link
 
-    // link_4
+    
 
     // We need to get the jacobian of the point on the first object; use the joint jacobian translated to the point
     const vector3_t joint1Position = data.oMi[joint1].translation();
@@ -289,7 +292,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
 
     // base_link
     ++i;
-    f[i] = distanceArray[i] - 0.7;
+    f[i] = distanceArray[i] - 0.6;
 
     const vector3_t joint2Position = data.oMi[joint2].translation(); //arm tool0
     matrix_t joint2Jacobian = matrix_t::Zero(6, model.nv);
