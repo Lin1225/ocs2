@@ -235,7 +235,7 @@ void MRT_ROS_Dummy_Loop::modifyObservation(SystemObservation& observation){
   for (int i = 0; i < 6; i++)
   {
     // observation.state(3+i) = joint[i];
-    std::cout <<std::endl << observation.state(3+i) - joint[i] <<std::endl<<std::endl;
+    // std::cout <<std::endl << observation.state(3+i) - joint[i] <<std::endl<<std::endl;
   }
 
   for (int i = 0; i < 6; i++)
