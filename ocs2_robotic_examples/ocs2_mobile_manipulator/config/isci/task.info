@@ -79,7 +79,7 @@ mpc
   
   debugPrint                      false
 
-  mpcDesiredFrequency              40    ; [Hz]   40 is good ; 20
+  mpcDesiredFrequency             40    ; [Hz]   40 is good ; 20
   mrtDesiredFrequency             100   ; [Hz]  100 is good  ; 50
 }
 
@@ -175,7 +175,7 @@ inputCost
     {
       scaling 1e-2
 
-      (0,0)  100.0  ; ur_arm_shoulder_pan_joint velocity
+      (0,0)  10000.0  ; ur_arm_shoulder_pan_joint velocity
       (1,1)  2000  ; ur_arm_shoulder_lift_joint velocity
       (2,2)  1.0  ; ur_arm_elbow_joint velocity
       (3,3)  5.0  ; ur_arm_wrist_1_joint velocity
