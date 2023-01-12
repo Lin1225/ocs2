@@ -28,6 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 
 #include "ocs2_ros_interfaces/mrt/MRT_ROS_Dummy_Loop.h"
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+
 
 namespace ocs2 {
 
@@ -43,8 +46,62 @@ MRT_ROS_Dummy_Loop::MRT_ROS_Dummy_Loop(MRT_ROS_Interface& mrt, scalar_t mrtDesir
   if (mpcDesiredFrequency_ > 0) {
     ROS_WARN_STREAM("MPC loop is not realtime! For realtime setting, set mpcDesiredFrequency to any negative number.");
   }
+  
+  int argc = 0;
+  char **argv = NULL;
+  ros::init(argc, argv, "aa");
+  ros::NodeHandle nh_;
+  // get arm state
+  nowBaseStatesub =
+      nh_.subscribe("/base_pose", 1, &MRT_ROS_Dummy_Loop::BasePoseCb, this);
+  
+  // get arm joint state
+  nowArmStatesub=
+      nh_.subscribe("/joint_states", 1, &MRT_ROS_Dummy_Loop::ArmStateCb, this);
 }
 
+void MRT_ROS_Dummy_Loop::BasePoseCb(const geometry_msgs::PoseConstPtr& msgPtr){
+  basePx = msgPtr->position.x ;
+  basePy = msgPtr->position.y ;
+  
+  tf2::Quaternion q(msgPtr->orientation.x,
+                    msgPtr->orientation.y,
+                    msgPtr->orientation.z,
+                    msgPtr->orientation.w);
+  tf2::Matrix3x3 m(q);
+  double roll, pitch, yaw;
+  m.getRPY(roll, pitch, yaw);
+  baseYaw  = yaw;
+
+}
+void MRT_ROS_Dummy_Loop::ArmStateCb(const sensor_msgs::JointStateConstPtr &msgPtr){
+  
+  std::map<std::string, int> JointID ={
+    {"shoulder_1_joint", 0}, 
+    {"shoulder_2_joint", 1},
+    {"elbow_joint",      2}, 
+    {"wrist_1_joint",    3},
+    {"wrist_2_joint",    4},
+    {"wrist_3_joint",    5}
+  };
+
+  for (int i = 0; i < msgPtr->name.size(); i++){
+    auto search = JointID.find(msgPtr->name[i]);
+
+    if(search!=JointID.end()){
+      // found
+      // std::cout << search->second << std::endl;
+      joint[search->second] = msgPtr->position[i];
+      jointV[search->second] = msgPtr->velocity[i];
+    }
+    else{
+      // not found
+      continue;
+    }
+  }
+
+    
+}
 /******************************************************************************************************/
 /******************************************************************************************************/
 /******************************************************************************************************/
@@ -108,7 +165,7 @@ void MRT_ROS_Dummy_Loop::synchronizedDummyLoop(const SystemObservation& initObse
     currentObservation = forwardSimulation(currentObservation);
 
     // User-defined modifications before publishing
-    modifyObservation(currentObservation);
+    // modifyObservation(currentObservation);
 
     // Publish observation if at the next step we want a new policy
     if ((loopCounter + 1) % mpcUpdateRatio == 0) {
@@ -150,7 +207,7 @@ void MRT_ROS_Dummy_Loop::realtimeDummyLoop(const SystemObservation& initObservat
     currentObservation = forwardSimulation(currentObservation);
 
     // User-defined modifications before publishing
-    modifyObservation(currentObservation);
+    // modifyObservation(currentObservation);
 
     // Publish observation
     mrt_.setCurrentObservation(currentObservation);
@@ -163,6 +220,33 @@ void MRT_ROS_Dummy_Loop::realtimeDummyLoop(const SystemObservation& initObservat
     ros::spinOnce();
     simRate.sleep();
   }
+}
+
+/******************************************************************************************************/
+/******************************************************************************************************/
+/******************************************************************************************************/
+void MRT_ROS_Dummy_Loop::modifyObservation(SystemObservation& observation){
+  observation.state(0) = basePx;
+  observation.state(1) = basePy;
+  observation.state(2) = baseYaw ;
+  for (int i = 0; i < 6; i++)
+  {
+    // observation.state(3+i) = joint[i];
+    // std::cout <<std::endl << observation.state(3+i) - joint[i] <<std::endl<<std::endl;
+  }
+
+  for (int i = 0; i < 6; i++)
+  {
+    // observation.input(2+i) = jointV[i];
+  }
+  
+  
+  // observation.state(3) = 0;
+  // observation.state(4) = 0;
+  // observation.state(5) = 0;
+  // observation.state(6) = 0;
+  // observation.state(7) = 0;
+  // observation.state(8) = 0;
 }
 
 /******************************************************************************************************/

@@ -32,6 +32,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ocs2_ros_interfaces/mrt/DummyObserver.h"
 #include "ocs2_ros_interfaces/mrt/MRT_ROS_Interface.h"
 
+#include "sensor_msgs/JointState.h"
+#include "geometry_msgs/Pose.h"
+
 namespace ocs2 {
 
 /**
@@ -77,7 +80,7 @@ class MRT_ROS_Dummy_Loop {
    *
    * @param [in] observation: The current observation.
    */
-  virtual void modifyObservation(SystemObservation& observation) {}
+  void modifyObservation(SystemObservation& observation);
 
  private:
   /**
@@ -99,6 +102,16 @@ class MRT_ROS_Dummy_Loop {
 
   scalar_t mrtDesiredFrequency_;
   scalar_t mpcDesiredFrequency_;
+
+  void BasePoseCb(const geometry_msgs::PoseConstPtr& msgPtr);
+  void ArmStateCb(const sensor_msgs::JointStateConstPtr &msgPtr);
+  double basePx =0;
+  double basePy =0;
+  double baseYaw =0;
+  double joint[6]={0};
+  double jointV[6]={0};
+  
+  ros::Subscriber nowBaseStatesub,nowArmStatesub;
 };
 
 }  // namespace ocs2
