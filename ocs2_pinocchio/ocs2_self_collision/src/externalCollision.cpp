@@ -120,7 +120,7 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   std::vector<double> distanceArray;
   for (int i = 1; i < 2; i++)
   {
-    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]-0),2)+std::pow(datavector[i](1)-obsData[1],2)+std::pow(datavector[i](2)-obsData[2],2));
+    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]-0.5),2)+std::pow(datavector[i](1)-obsData[1],2)+std::pow(datavector[i](2)-obsData[2],2));
     distanceArray.push_back(distance);  
   }
   // std::vector<double> distanceArray;
@@ -180,7 +180,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
   std::vector<double> distanceArray;
   for (int i = 1; i < 2; i++)
   {
-    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]-0),2)+std::pow(datavector[i](1)-obsData[1],2)+std::pow(datavector[i](2)-obsData[2],2));
+    double distance = std::sqrt(std::pow(datavector[i](0)-(obsData[0]-0.5),2)+std::pow(datavector[i](1)-obsData[1],2)+std::pow(datavector[i](2)-obsData[2],2));
     distanceArray.push_back(distance);  
   }
   // distanceArray.push_back(0.1);
