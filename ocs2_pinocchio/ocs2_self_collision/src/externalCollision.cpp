@@ -131,14 +131,14 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   // }
 
   // base_link
-    double distance = std::sqrt(std::pow(datavector[0](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)
-                               +std::pow(datavector[0](1)-(obsData[1]+outObsData->twist.twist.linear.y),2));
+    double distance = std::sqrt(std::pow(datavector[0](0)-(obsData[0]+outObsData->twist.twist.linear.x*1.5),2)
+                               +std::pow(datavector[0](1)-(obsData[1]+outObsData->twist.twist.linear.y*1.5),2));
     distanceArray.push_back(distance); 
 
   // link_4
-    distance = std::sqrt(std::pow(datavector[1](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)
-                        +std::pow(datavector[1](1)-(obsData[1]+outObsData->twist.twist.linear.y),2)
-                        +std::pow(datavector[1](2)-(obsData[2]+outObsData->twist.twist.linear.z),2));
+    distance = std::sqrt(std::pow(datavector[1](0)-(obsData[0]+outObsData->twist.twist.linear.x*1.5),2)
+                        +std::pow(datavector[1](1)-(obsData[1]+outObsData->twist.twist.linear.y*1.5),2)
+                        +std::pow(datavector[1](2)-(obsData[2]+outObsData->twist.twist.linear.z*1.5),2));
     distanceArray.push_back(distance);      
 
   // std::vector<double> distanceArray;
@@ -154,7 +154,7 @@ vector_t externalCollision::getValue(const PinocchioInterface& pinocchioInterfac
   // }
 
   // base_link
-  violations[0] = distanceArray.at(0) - 0.6;
+  violations[0] = distanceArray.at(0) - 0.8;
   // link_4
   violations[1] = distanceArray.at(1) - 0.4;
 
@@ -213,14 +213,14 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
   // }
 
   // base_link
-    double distance = std::sqrt(std::pow(datavector[0](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)
-                               +std::pow(datavector[0](1)-(obsData[1]+outObsData->twist.twist.linear.y),2));
+    double distance = std::sqrt(std::pow(datavector[0](0)-(obsData[0]+outObsData->twist.twist.linear.x*1.5),2)
+                               +std::pow(datavector[0](1)-(obsData[1]+outObsData->twist.twist.linear.y*1.5),2));
     distanceArray.push_back(distance); 
 
   // link_4
-    distance = std::sqrt(std::pow(datavector[1](0)-(obsData[0]+outObsData->twist.twist.linear.x),2)
-                        +std::pow(datavector[1](1)-(obsData[1]+outObsData->twist.twist.linear.y),2)
-                        +std::pow(datavector[1](2)-(obsData[2]+outObsData->twist.twist.linear.z),2));
+    distance = std::sqrt(std::pow(datavector[1](0)-(obsData[0]+outObsData->twist.twist.linear.x*1.5),2)
+                        +std::pow(datavector[1](1)-(obsData[1]+outObsData->twist.twist.linear.y*1.5),2)
+                        +std::pow(datavector[1](2)-(obsData[2]+outObsData->twist.twist.linear.z*1.5),2));
     distanceArray.push_back(distance);   
 
   // distanceArray.push_back(0.1);
@@ -292,7 +292,7 @@ std::pair<vector_t, matrix_t> externalCollision::getLinearApproximation(const Pi
 
     // base_link
     ++i;
-    f[i] = distanceArray[i] - 0.6;
+    f[i] = distanceArray[i] - 0.8;
 
     const vector3_t joint2Position = data.oMi[joint2].translation(); //arm tool0
     matrix_t joint2Jacobian = matrix_t::Zero(6, model.nv);
